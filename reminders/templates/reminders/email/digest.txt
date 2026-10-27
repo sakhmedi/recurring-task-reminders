@@ -1,0 +1,9 @@
+{% autoescape off %}Здравствуйте!
+
+Регламентные задачи, по которым подходит срок (на {{ today|date:"d.m.Y" }}):
+{% for line in lines %}
+{{ forloop.counter }}. [{{ line.company }}] {{ line.title }}
+   срок: {{ line.due_date|date:"d.m.Y" }} — {{ line.label }}{% endfor %}
+
+После выполнения отметьте задачу в админке — следующий срок сдвинется автоматически.
+{% endautoescape %}

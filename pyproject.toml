@@ -1,0 +1,44 @@
+[project]
+name = "recurring-task-reminders"
+version = "0.1.0"
+description = "Recurring maintenance task reminders — Django + Celery beat daily email digest"
+requires-python = ">=3.12"
+dependencies = [
+    "django>=5.2,<6.0",
+    "celery[redis]>=5.4,<6.0",
+    "psycopg[binary]>=3.2,<4.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3",
+    "pytest-django>=4.9",
+    "time-machine>=2.16",
+    "ruff>=0.8",
+]
+
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+# Это приложение, а не библиотека: pyproject нужен только для зависимостей
+# и настроек инструментов, поэтому пакеты для установки не ищем.
+[tool.setuptools]
+packages = []
+
+# --- pytest -----------------------------------------------------------------
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = ["test_*.py"]
+addopts = "-ra"
+
+# --- ruff -------------------------------------------------------------------
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["reminders/migrations"]
+
+[tool.ruff.lint]
+# E/F — базовые ошибки, I — сортировка импортов, B — типичные баги,
+# UP — современный синтаксис, DJ — правила для Django.
+select = ["E", "F", "I", "B", "UP", "DJ"]

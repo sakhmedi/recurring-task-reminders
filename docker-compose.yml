@@ -1,0 +1,47 @@
+# Общие настройки для всех сервисов с кодом Django (web, celery, beat).
+x-app: &app
+  build: .
+  env_file: .env
+  volumes:
+    - .:/app
+  depends_on:
+    db:
+      condition: service_healthy
+    redis:
+      condition: service_started
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-reminders}
+      POSTGRES_USER: ${POSTGRES_USER:-reminders}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-reminders}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+
+  web:
+    <<: *app
+    command: sh ./entrypoint.sh
+    ports:
+      - "8000:8000"
+
+  celery:
+    <<: *app
+    command: celery -A config worker -l info
+
+  beat:
+    <<: *app
+    # Файл расписания beat кладём в /tmp, чтобы он не попадал в репозиторий.
+    command: celery -A config beat -l info -s /tmp/celerybeat-schedule
+
+volumes:
+  pgdata:

@@ -1,0 +1,5 @@
+{% for row in rows %}
+  {% include "reminders/_row.html" %}
+{% empty %}
+  <tr><td colspan="6">Нет задач со сроком в ближайшие {{ days }} дн.</td></tr>
+{% endfor %}

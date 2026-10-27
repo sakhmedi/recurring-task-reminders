@@ -1,0 +1,10 @@
+{% extends "admin/change_form.html" %}
+
+{% block submit_buttons_bottom %}
+  {{ block.super }}
+  {% if original %}
+    <div class="submit-row">
+      <input type="submit" name="_mark_done" value="Отметить выполненным (сегодня)">
+    </div>
+  {% endif %}
+{% endblock %}

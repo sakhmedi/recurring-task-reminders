@@ -1,0 +1,18 @@
+<tr id="task-{{ row.task.pk }}" {% if just_done %}class="done"{% endif %}>
+  <td>{{ row.task.company.name }}</td>
+  <td>{{ row.task.title }}</td>
+  <td>{{ row.task.responsible_email }}</td>
+  <td>{{ row.due_date|date:"d.m.Y" }}</td>
+  <td><span class="badge {{ row.state }}">{{ row.label }}</span></td>
+  <td>
+    {% if just_done %}
+      ✓ выполнено
+    {% else %}
+      {# hx-post отмечает задачу, ответ (эта же строка) заменяет текущую <tr>. #}
+      <button class="outline"
+              hx-post="{% url 'reminders:mark_done' row.task.pk %}"
+              hx-target="closest tr"
+              hx-swap="outerHTML">Выполнено</button>
+    {% endif %}
+  </td>
+</tr>

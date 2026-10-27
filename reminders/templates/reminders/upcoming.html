@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ближайшие сроки</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+  <style>
+    .badge { color: #fff; padding: 2px 8px; border-radius: 8px; white-space: nowrap; font-size: .85em; }
+    .badge.overdue { background: #c62828; }
+    .badge.soon { background: #ef6c00; }
+    .badge.ok { background: #2e7d32; }
+    .badge.paused { background: #757575; }
+    tr.done td { opacity: .6; }
+    .toolbar { display: flex; gap: 1rem; align-items: center; }
+    .toolbar select { width: auto; margin: 0; }
+  </style>
+</head>
+{# CSRF-токен добавляется ко всем запросам HTMX, иначе Django отклонит POST. #}
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+  <main class="container">
+    <nav>
+      <ul><li><strong>Ближайшие сроки</strong></li></ul>
+      <ul><li><a href="{% url 'admin:index' %}">Админка</a></li></ul>
+    </nav>
+
+    <div class="toolbar">
+      <label for="days">Окно:</label>
+      {# При изменении значения HTMX сделает GET /upcoming/?days=N и заменит содержимое #rows. #}
+      <select id="days" name="days"
+              hx-get="{% url 'reminders:upcoming' %}"
+              hx-target="#rows">
+        {% for d in day_choices %}
+          <option value="{{ d }}" {% if d == days %}selected{% endif %}>{{ d }} дн.</option>
+        {% endfor %}
+      </select>
+      <small>Сегодня: {{ today|date:"d.m.Y" }}. Просроченные задачи показываются всегда.</small>
+    </div>
+
+    <table class="striped">
+      <thead>
+        <tr>
+          <th>Компания</th><th>Задача</th><th>Ответственный</th>
+          <th>Срок</th><th>Состояние</th><th></th>
+        </tr>
+      </thead>
+      <tbody id="rows">
+        {% include "reminders/_rows.html" %}
+      </tbody>
+    </table>
+  </main>
+</body>
+</html>
